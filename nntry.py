@@ -93,7 +93,7 @@ class Net():
             if acc[-1]==1.:
                 print('100% Accuracy!')
                 break
-        plt.plot(range(0,c),loss,'r--',range(0,c),acc,'b-.')
+        plt.plot(range(0,c),loss,'r--',range(0,c),acc,'bs')
         plt.ylabel('Loss/Acc')
         plt.xlabel('ephocs')
             
