@@ -10,7 +10,7 @@ class Dataset_Loader():
             elements = line.split()
 
             self.y.append([float(elements[0])]) 
-            print elements[0]
+            #print elements[0]
             elements = elements[1:-1]
             feature = [[0 for i in range(0, n_classes)] for n_classes in [3, 3, 2, 3, 4, 2]]
             for i, n_classes in enumerate([3, 3, 2, 3, 4, 2]):
@@ -22,3 +22,4 @@ class Dataset_Loader():
             self.x.append(final_features)
         
         f.close()
+
