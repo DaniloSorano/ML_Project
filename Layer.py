@@ -66,12 +66,13 @@ class Layer():
 
             #print 'layer',c,i,n,self.gradients[i],self.deltas[i]
 
-    def upgrade_weights(self):
+    def upgrade_weights(self,lamb=0):
         for j, n in enumerate(self.sinapsi):
             for i, w in enumerate(n):
-                self.sinapsi[j][i] = w + self.gradients[j][i] + self.momentum[j][i]
+                self.sinapsi[j][i] = w + self.gradients[j][i] + self.momentum[j][i] #- 0.01*w
                 #print self.sinapsi[j][i] ,
             #print ''
+
 class Output_Layer(Layer):
     def __init__(self, inputs=4, weights=[], sorta=np.sign, derivata=derivata_segno, num_unit=2):
         if weights==[]:
