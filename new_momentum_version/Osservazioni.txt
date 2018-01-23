@@ -1,0 +1,2 @@
+1. Nel monk-1 il fan-in nel mode online non permetteva di raggiugere 1.0 di acc, mai.
+nel monk2  e 3 invece sì,
