@@ -4,10 +4,6 @@ from nncore import *
 import time
 
 start_time = time.time()
-#def GridSearch(self, ):
-#    pass
-
-
 
 l_train = Dataset_Loader('monks-2.train')
 l_train.load_monk1()
@@ -33,7 +29,7 @@ for i in [.0,.2]:
     #l2 = Layer(inputs=17,weights=[],sorta=logistic,derivata=derivata_logistic,num_unit=7)
     l3 = Output_Layer(inputs=17,weights=[],sorta=logistic,derivata=derivata_logistic,num_unit=1)
     net_monk = Net([l1,l3])
-    a,b,c,d = net_monk.fit(l_train.x, l_train.y, eta=0.5,lamb=0.02,momentum=0.7, mode='minibatch', epochs=300,hold_out=i) #validation_data=(l_train.x,l_train.y))
+    a,b,c,d = net_monk.fit(l_train.x, l_train.y, eta=0.5, momentum=0.7, mode='online', epochs=300,hold_out=i) 
 
     predicted = []
     for J,p in enumerate(l_test.x):

@@ -7,8 +7,8 @@ class Layer():
     def __init__(self, inputs=4, weights=[], sorta=np.sign, derivata=derivata_segno, num_unit=2):
         if weights==[]:
             weights = [[(rn.random()*1.4 -.7) for i in range(0, inputs+1)] for j in range(0, num_unit)]
-        print (inputs,'inputs')
-        print (num_unit,'neurons')
+        #print (inputs,'inputs')
+        #print (num_unit,'neurons')
         self.sinapsi = np.array(weights)    #the weights
         self.o = sorta  #the output function of the neruon
         self.derivata_sorta = derivata
@@ -85,8 +85,8 @@ class Output_Layer(Layer):
         if weights==[]:
             #no fun in
             weights = [[(rn.random()*1.4 -.7) for i in range(0, inputs+1)] for j in range(0, num_unit)]
-        print (inputs,'inputs')
-        print (num_unit,'neurons')
+        #print (inputs,'inputs')
+        #print (num_unit,'neurons')
         self.sinapsi = np.array(weights)    #the weights
         self.o = sorta  #the output function of the neruon
         self.derivata_sorta = derivata

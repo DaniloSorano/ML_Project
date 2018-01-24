@@ -9,19 +9,19 @@ class Net():
     def __init__(self, layers,name='rete'):
         self.name=name
         self.layers = layers  #the layers of the network
-    def save_conf(self,N_conf):
-        f = open('exp\\'+self.name+'_'+str(N_conf)+'.conf','wb')
+    def save_conf_and_score(self,N_conf,loss,acc,val_loss,val_acc,test_acc):
+        f = open('exp/'+self.name+'_'+str(N_conf)+'.score','wb')
+        f.write('Test_Acc' + ': ' + str(test_acc)+' ')
         for k in ['eta','momentum','mode','n_layer']:
-            f.write(k + ' : ' + str(self.conf[k])+'\r\n')
+            f.write(k + ': ' + str(self.conf[k])+' ')
         if self.conf['mode']=='minibatch':
-            f.write('batch_size' + ' : ' + str(self.conf['batch_size'])+'\n')
-        f.close()
-    def save_score(self,conf,loss,acc,val_loss,val_acc,test_acc):
-        f = open('exp\\'+self.name+'_'+str(conf)+'.eval','wb')
-        f.write('Test Acc' + ': ' + str(test_acc)+'\r\n')
+            f.write('batch_size' + ' : ' + str(self.conf['batch_size']))
+        f.write('\r\n')
+        f.write('Loss\tAcc'+(('Val_loss\tVal_acc\r\n')if val_acc!=[] else '\r\n'))
         for i,l in enumerate(loss):
             f.write(str(loss[i])+'\t'+str(acc[i])+(('\t'+str(val_loss[i])+'\t'+str(val_acc[i])+'\r\n') if val_loss!=[] else '\r\n'))
         f.close()
+
     def predict(self, x): #compute the result of the approximate function
         inpu = x
         for layer in self.layers:   #for each layer it computes the output
@@ -95,30 +95,11 @@ class Net():
         for i,t in enumerate(y):
             if t[0]==(0. if predicted[i][0] < 0.5 else 1.):
                 s =s+1.
-            else:
-                print (t[0],predicted[i][0])
+            #else:
+                #print (t[0],predicted[i][0])
 
         #print (s)
         return s/len(predicted)
-
-    def gridSearch(self, x, y):
-        self.train_x = x
-        self.train_y = y
-        eta_range = np.arange(0.1, 1.00, 0.1)
-        eta_best= 0.1
-        mse_best = 1000
-        mee_best = 1000
-        acc_best = 1000
-        for i,eta in enumerate(eta_range):
-            mse, mee, acc = self.fit_Gs(self.train_x, self.train_y, eta, epochs=300, mode='batch')
-            #if mse < mse_best:
-                #mse_best = mse
-                #mee_best = mee
-                #acc_best = acc
-                #eta_best = eta
-            print 'MSE = ', mse, ' eta = ', eta, ' accuracy = ', acc
-        #return predicted_best
-        #return mse, mee, predicted
 
     def norm(self):
         norm = 0
@@ -163,8 +144,8 @@ class Net():
                 val_mse, val_mee, val_accuracy=self.metrics(self.val_x,self.val_y)
                 val_acc.append(val_accuracy)
                 val_loss.append(val_mse)
-            print ('Epochs',i,'/',epochs)
-            print ('MSE', mse,' MEE',mee,' ACC',acc[-1],(('VAL_ACC '+str(val_acc[-1])+' VAL_MSE '+str(val_loss[-1])) if hold_out>0. else ''))
+            #print ('Epochs',i,'/',epochs)
+            #print ('MSE', mse,' MEE',mee,' ACC',acc[-1],(('VAL_ACC '+str(val_acc[-1])+' VAL_MSE '+str(val_loss[-1])) if hold_out>0. else ''))
             if decay_eta:
                 if eta > (eta0/100):
                     alpha = i/tau
