@@ -5,10 +5,10 @@ import time
 
 start_time = time.time()
 
-l_train = Dataset_Loader('monks-1.train')
+l_train = Dataset_Loader('monks-2.train')
 l_train.load_monk1()
 
-l_test = Dataset_Loader('monks-1.test')
+l_test = Dataset_Loader('monks-2.test')
 l_test.load_monk1()
 
 n_inputs = len(l_train.x[0])
@@ -27,28 +27,30 @@ config = 0
 for j in range(0,15):
     config = 0
     for mode in ['batch','online','minibatch']:
-        for eta in range(3,8):
-            for momentum in range(2,7):
+        for eta in [3, 6, 9, 10]:
+            for momentum in range(3, 6, 9):
                 n = pkl.load(open('exp/Net_'+str(j),'rb'))
                 if mode == 'minibatch':
-                    for batch_size in [10,30,50,100]:
+                    for batch_size in [10,20,30,50]:
                         print n.name+' config=',str(config)
-                        loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=500, momentum=momentum/10.,batch_size=batch_size)
+                        loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=500, momentum=momentum/10.,batch_size=batch_size, hold_out=0.2)
                         predicted = []
                         for i,p in enumerate(l_test.x):
                             hx = n.predict(p)
                             predicted.append(hx)
                         test_acc= n.accuracy(predicted,l_test.y)
+                        print 'MSE_val = ', val_loss[-1],'Validation Accuracy = ', val_acc[-1], 'Test Accuracy = ', test_acc
                         n.save_conf_and_score(config,loss,acc,val_loss,val_acc,test_acc)
                         config=config+1
                 else:
                     print n.name+' config=',str(config)
-                    loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=500, momentum=momentum/10.)
+                    loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=500, momentum=momentum/10., hold_out=0.2)
                     predicted = []
                     for i,p in enumerate(l_test.x):
                         hx = n.predict(p)
                         predicted.append(hx)
                     test_acc= n.accuracy(predicted,l_test.y)
+                    print 'MSE_val = ', val_loss[-1],'Validation Accuracy = ', val_acc[-1], 'Test Accuracy = ', test_acc
                     n.save_conf_and_score(config,loss,acc,val_loss,val_acc,test_acc)
                     config=config+1
 print("--- %s seconds ---" % (time.time() - start_time))

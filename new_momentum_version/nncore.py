@@ -69,8 +69,8 @@ class Net():
         for i, p in enumerate(x):
             hx = self.predict(p)
             predicted.append(hx)
-            mse = mse + np.sum(.5 * np.square((np.array(y[i]) - hx))) + (lamb*self.norm() if lamb!=0. else 0.) #the error
-            mee = mee + np.sqrt(np.sum(np.square((np.array(y[i]) - hx)))) + (lamb*self.norm() if lamb!=0. else 0.)
+            mse = mse + np.sum(.5 * np.square((np.array(y[i]) - hx))) #the error
+            mee = mee + np.sqrt(np.sum(np.square((np.array(y[i]) - hx))))
 
             self.compute_gradient(y[i])
 
@@ -82,13 +82,11 @@ class Net():
                 self.upgrade_layers(lamb=lamb*(batch_size*(1./len(x))),eta=eta,momentum=momentum)
                 self.gradients_refresh()
         if mode == 'batch':
-
             self.divide_gradient(len(self.train_x))
             self.upgrade_layers(lamb=lamb,eta=eta,momentum=momentum)
             self.gradients_refresh()
-
-
-        return mse / len(x), mee/len(x) ,predicted
+        self.penalty = (lamb*self.norm() if lamb!=0. else 0.)
+        return (mse+ self.penalty) / len(x), (mee+ self.penalty)/len(x),predicted
 
     def accuracy(self,predicted,y): #TP+TN / N
         s=0
@@ -105,7 +103,7 @@ class Net():
         norm = 0
         for l in self.layers:
             norm = norm + l.norm()
-        return np.sqrt(norm)
+        return norm
 
 
     def fit(self, x, y,eta,mode='online',batch_size=30,epochs=100,decay_eta=False,momentum=0.,lamb=0.,hold_out=0.,validation_data=([],[])):
@@ -121,10 +119,11 @@ class Net():
 
         val_acc = []
         val_loss = []
-
-        #self.shuffle_data(self.train_x,self.train_y)
+        penalty = 0
+        self.shuffle_data(self.train_x,self.train_y)
 
         c=0
+
         if validation_data==([],[]):
             self.val_x,self.val_y=self.hold_out_generation(hold_out)
         else:
@@ -145,7 +144,10 @@ class Net():
                 val_acc.append(val_accuracy)
                 val_loss.append(val_mse)
             #print ('Epochs',i,'/',epochs)
-            #print ('MSE', mse,' MEE',mee,' ACC',acc[-1],(('VAL_ACC '+str(val_acc[-1])+' VAL_MSE '+str(val_loss[-1])) if hold_out>0. else ''))
+            #print ('MSE', mse, (('VAL_ACC '+str(val_acc[-1])+' VAL_MSE '+str(val_loss[-1])) if hold_out>0. else ''))
+            # print ('MSE', mse,' MEE',mee,' ACC',acc[-1],(('VAL_ACC '+str(val_acc[-1])+' VAL_MSE '+str(val_loss[-1])) if hold_out>0. else ''))
+            if val_accuracy == 1.0 and val_mse <= 0.002:
+                break
             if decay_eta:
                 if eta > (eta0/100):
                     alpha = i/tau
@@ -199,7 +201,7 @@ class Net():
             #else:
             #    print y[i][0],hx[0]
 
-        return mse / len(x), mee/len(x), acc/len(x)
+        return (mse+ self.penalty)/len(x), (mee+self.penalty)/len(x), acc/len(x)
 
     def MEE(self, x, y): #Mean Eucludian Error
         s = 0

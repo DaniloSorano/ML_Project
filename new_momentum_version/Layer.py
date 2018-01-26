@@ -74,9 +74,9 @@ class Layer():
     def upgrade_weights(self,lamb=0.,eta=0.5,momentum=.0):
         for j, n in enumerate(self.sinapsi):
             for i, w in enumerate(n):
-                Cambiamento = eta * self.gradients[j][i] + self.momentum[j][i]
-                self.momentum[j][i] = momentum * Cambiamento #momentum for the next Cambiamento
-                self.sinapsi[j][i] = w + Cambiamento - (lamb*w) #  if i!=0 else 0)
+                Cambiamento = eta * self.gradients[j][i] - (lamb*w) + self.momentum[j][i]
+                self.momentum[j][i] = momentum * Cambiamento  #momentum for the next Cambiamento
+                self.sinapsi[j][i] = w + Cambiamento #  if i!=0 else 0)
                 #print self.sinapsi[j][i] ,
             #print ''
 
