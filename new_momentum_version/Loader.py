@@ -22,4 +22,17 @@ class Dataset_Loader():
             self.x.append(final_features)
         
         f.close()
-
+    def load_cup_train(self):
+        self.x = []
+        self.y = []
+        f = open(self.name, 'r')
+        for line in f:
+            line = line.strip()
+            if line and line[0]!='#':
+                elements = line.split(',')
+                self.y.append([float(el) for el in elements[-2:]]) 
+                #print elements[0]
+                elements = [float(el) for el in elements[1:-2]]
+                self.x.append(elements)
+                #print self.x,self.y
+        f.close()
