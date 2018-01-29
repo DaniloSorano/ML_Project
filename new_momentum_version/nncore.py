@@ -16,6 +16,7 @@ class Net():
             f.write(k + ': ' + str(self.conf[k])+' ')
         if self.conf['mode']=='minibatch':
             f.write('batch_size' + ' : ' + str(self.conf['batch_size']))
+        f.write(' Epochs: '+str(len(loss)))
         f.write('\r\n')
         f.write('Loss\tAcc'+(('Val_loss\tVal_acc\r\n')if val_acc!=[] else '\r\n'))
         for i,l in enumerate(loss):
@@ -111,7 +112,7 @@ class Net():
         self.train_x = x
         self.train_y = y
         #eta decay
-        tau = 100
+        tau = 100.
         eta0=eta
         #for plot
         loss = []
@@ -145,23 +146,21 @@ class Net():
                 val_loss.append(val_mse)
             #print ('Epochs',i,'/',epochs)
             #print ('MSE', mse, (('VAL_ACC '+str(val_acc[-1])+' VAL_MSE '+str(val_loss[-1])) if hold_out>0. else ''))
-            # print ('MSE', mse,' MEE',mee,' ACC',acc[-1],(('VAL_ACC '+str(val_acc[-1])+' VAL_MSE '+str(val_loss[-1])) if hold_out>0. else ''))
-            if val_accuracy == 1.0 and val_mse <= 0.002:
+            #EARLY STOPPING
+            if np.sum(val_acc[-5:])/5. == 1.0 and np.sum(val_loss[-5:])/5. <= 0.002:
                 break
             if decay_eta:
-                if eta > (eta0/100):
+                if eta > (eta0/100.):
                     alpha = i/tau
-                    eta=(1- (alpha))*eta0 + alpha*(eta/100)
+                    eta=(1.- (alpha))*eta0 + alpha*(eta/100.)
 
-        #            if np.sum(acc[-5:])/float(len(acc[-5:]))==1.:
-        #                print('100% Accuracy!')
-        #                break
         return loss,acc,val_loss,val_acc
+
     def plot_stats(self,loss,acc,val_loss,val_acc):
         c = len(loss)
-        plt.plot(range(0,c),loss,'r--',range(0,c),acc,'k')
+        plt.plot(range(0,c),loss,'r',range(0,c),acc,'k')
         if val_acc!=[]:
-            plt.plot(range(0,c),val_acc,'g',range(0,c),val_loss,'y')
+            plt.plot(range(0,c),val_acc,'g--',range(0,c),val_loss,'y--')
         plt.ylabel('Loss/Acc')
         plt.xlabel('ephocs')
         plt.savefig(self.name)

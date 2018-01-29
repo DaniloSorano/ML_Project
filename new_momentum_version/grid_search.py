@@ -14,43 +14,54 @@ l_test.load_monk1()
 n_inputs = len(l_train.x[0])
 n_outputs = len(l_train.y[0])
 nets = []
-c= -1
-for n_units in [17,13,10]:
+topology = -1
+
+for n_units in [5,7,10]:
+    topology = topology + 1
     for tries in range(0,5):
-        c=c+1
         layers = []
         layers.append(Layer(inputs=n_inputs,sorta=logistic,derivata=derivata_logistic,num_unit=n_units))
         layers.append(Output_Layer(inputs=n_units,sorta=logistic,derivata=derivata_logistic,num_unit=n_outputs))
-        n = Net(layers,name='Net_'+str(c))
+        n = Net(layers,name='Net_'+str(topology)+'_try_'+str(tries))
         pkl.dump(n,open('exp/'+n.name,'wb')) #+'_'+str(dt.datetime.now()).replace(' ','_').split('.')[0])
-config = 0
-for j in range(0,15):
-    config = 0
+
+
+for topology in range(0,3):
+    teta = -1
     for mode in ['batch','online','minibatch']:
-        for eta in [3, 6, 9, 10]:
-            for momentum in range(3, 6, 9):
-                n = pkl.load(open('exp/Net_'+str(j),'rb'))
+        for eta in [3, 5, 9]:
+            for momentum in [3, 7, 8]:
                 if mode == 'minibatch':
-                    for batch_size in [10,20,30,50]:
-                        print n.name+' config=',str(config)
-                        loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=500, momentum=momentum/10.,batch_size=batch_size, hold_out=0.2)
+                    for batch_size in [10,30,50]:
+                        teta = teta + 1
+                        for tries in range(0,5): 
+                            #validation_accuracy_for_topology=[]
+                            n = pkl.load(open('exp/Net_'+str(topology)+'_try_'+str(tries),'rb'))
+                            print str((n.name.split('_'))),eta,momentum,mode,(batch_size if mode =='minibatch' else '' ),str(teta)
+
+                            loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=10, momentum=momentum/10.,batch_size=batch_size, hold_out=0.2)
+                            predicted = []
+
+                            for i,p in enumerate(l_test.x):
+                                hx = n.predict(p)
+                                predicted.append(hx)                                
+                            test_acc= n.accuracy(predicted,l_test.y)
+
+                            print 'MSE_val = ', val_loss[-1],'Validation Accuracy = ', val_acc[-1], 'Test Accuracy = ', test_acc
+
+                            n.save_conf_and_score(teta,loss,acc,val_loss,val_acc,test_acc)
+                else:
+                    teta = teta + 1
+                    for tries in range(0,3): 
+                        n = pkl.load(open('exp/Net_'+str(topology)+'_try_'+str(tries),'rb'))
+                        print str((n.name.split('_'))),eta,momentum,mode,(batch_size if mode =='minibatch' else '' ),str(teta)
+
+                        loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=10, momentum=momentum/10., hold_out=0.2)
                         predicted = []
                         for i,p in enumerate(l_test.x):
                             hx = n.predict(p)
                             predicted.append(hx)
                         test_acc= n.accuracy(predicted,l_test.y)
                         print 'MSE_val = ', val_loss[-1],'Validation Accuracy = ', val_acc[-1], 'Test Accuracy = ', test_acc
-                        n.save_conf_and_score(config,loss,acc,val_loss,val_acc,test_acc)
-                        config=config+1
-                else:
-                    print n.name+' config=',str(config)
-                    loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=500, momentum=momentum/10., hold_out=0.2)
-                    predicted = []
-                    for i,p in enumerate(l_test.x):
-                        hx = n.predict(p)
-                        predicted.append(hx)
-                    test_acc= n.accuracy(predicted,l_test.y)
-                    print 'MSE_val = ', val_loss[-1],'Validation Accuracy = ', val_acc[-1], 'Test Accuracy = ', test_acc
-                    n.save_conf_and_score(config,loss,acc,val_loss,val_acc,test_acc)
-                    config=config+1
+                        n.save_conf_and_score(teta,loss,acc,val_loss,val_acc,test_acc)
 print("--- %s seconds ---" % (time.time() - start_time))
