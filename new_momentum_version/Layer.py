@@ -33,10 +33,11 @@ class Layer():
             norm = norm + np.sum(np.square(neurone))
         return norm
     def weighted_sum(self, x):
-        x = [1]+x #for the bias
+        #print x
+        x = [1.] + x #for the bias
 
         self.previous_out = x
-        #   print self.previous_out, 'moltiplicato per'
+        #print self.previous_out, 'moltiplicato per'
         #print self.sinapsi, 'fa'
 
         self.net = self.sinapsi.dot(x) # xA

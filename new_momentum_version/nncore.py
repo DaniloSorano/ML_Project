@@ -9,14 +9,15 @@ class Net():
     def __init__(self, layers,name='rete'):
         self.name=name
         self.layers = layers  #the layers of the network
-    def save_conf_and_score(self,N_conf,loss,acc,val_loss,val_acc,test_acc):
-        f = open('exp/'+self.name+'_'+str(N_conf)+'.score','wb')
+    def save_conf_and_score(self, folder, N_conf,loss,acc,val_loss,val_acc,test_acc):
+        f = open(folder + self.name+'_'+str(N_conf)+'.score','wb')
         f.write('Test_Acc' + ': ' + str(test_acc)+' ')
-        for k in ['eta','momentum','mode','n_layer']:
-            f.write(k + ': ' + str(self.conf[k])+' ')
+        for k in ['eta','momentum','h_units', 'lamb','mode']:
+            if not (k == 'lamb' and self.conf[k] == 0.0):
+                f.write(k + ': ' + str(self.conf[k])+' ')
         if self.conf['mode']=='minibatch':
             f.write('batch_size' + ' : ' + str(self.conf['batch_size']))
-        f.write(' Epochs: '+str(len(loss)))
+        # f.write('Epochs: '+str(len(loss)))
         f.write('\r\n')
         f.write('Loss\tAcc'+(('Val_loss\tVal_acc\r\n')if val_acc!=[] else '\r\n'))
         for i,l in enumerate(loss):
@@ -70,6 +71,9 @@ class Net():
         for i, p in enumerate(x):
             hx = self.predict(p)
             predicted.append(hx)
+            # print(y[i])
+            # print hx
+
             mse = mse + np.sum(.5 * np.square((np.array(y[i]) - hx))) #the error
             mee = mee + np.sqrt(np.sum(np.square((np.array(y[i]) - hx))))
 
@@ -107,8 +111,8 @@ class Net():
         return norm
 
 
-    def fit(self, x, y,eta,mode='online',batch_size=30,epochs=100,decay_eta=False,momentum=0.,lamb=0.,hold_out=0.,validation_data=([],[])):
-        self.conf = {'eta':eta,'mode':mode,'batch_size':batch_size,'momentum':momentum,'n_layer':len(self.layers)}
+    def fit(self, x, y,eta,mode='online',batch_size=30,epochs=100,decay_eta=False,momentum=0.,lamb=0.,hold_out=0.,validation_data=([],[]), early=False):
+        self.conf = {'eta':eta,'mode':mode,'batch_size':batch_size,'momentum':momentum,'h_units':len(self.layers[0].sinapsi),'lamb':lamb}
         self.train_x = x
         self.train_y = y
         #eta decay
@@ -137,24 +141,40 @@ class Net():
             c=c+1 # for the plot
             mse,mee,predicted = self.little_fit(self.train_x, self.train_y,eta,mode,batch_size,momentum,lamb=lamb)
 
+            choose = rn.randrange(0, len(predicted))
+            print predicted[choose], self.train_y[choose]
             acc.append(self.accuracy(predicted,self.train_y))
-            loss.append(mse)
+            #loss.append(mse)
+            loss.append(mee)
 
             if hold_out>0.:
                 val_mse, val_mee, val_accuracy=self.metrics(self.val_x,self.val_y)
                 val_acc.append(val_accuracy)
-                val_loss.append(val_mse)
-            #print ('Epochs',i,'/',epochs)
+                #val_loss.append(val_mse)
+                val_loss.append(val_mee)
+            print ('Epochs',i,'/',epochs)
+            print 'MEE', mee, 'val_MEE', val_mee
             #print ('MSE', mse, (('VAL_ACC '+str(val_acc[-1])+' VAL_MSE '+str(val_loss[-1])) if hold_out>0. else ''))
             #EARLY STOPPING
-            if np.sum(val_acc[-5:])/5. == 1.0 and np.sum(val_loss[-5:])/5. <= 0.002:
-                break
+            if early:
+                if np.sum(val_acc[-5:]) / 5. == 1.0 and np.sum(val_loss[-5:]) / 5. <= 0.002:
+                    break
             if decay_eta:
                 if eta > (eta0/100.):
                     alpha = i/tau
                     eta=(1.- (alpha))*eta0 + alpha*(eta/100.)
 
         return loss,acc,val_loss,val_acc
+
+    def plot_reg(self,loss,val_loss):
+        c = len(loss)
+        plt.plot(range(0,c),loss,'r')
+        if val_loss!=[]:
+            plt.plot(range(0,c),val_loss,'y--')
+        plt.ylabel('Loss/')
+        plt.xlabel('ephocs')
+        plt.savefig(self.name)
+        plt.show()
 
     def plot_stats(self,loss,acc,val_loss,val_acc):
         c = len(loss)

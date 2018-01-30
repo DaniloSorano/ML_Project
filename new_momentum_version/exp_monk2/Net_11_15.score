@@ -1,3 +1,0 @@
-Test_Acc: 1.0 eta: 0.6 momentum: 0.3 mode: minibatch n_layer: 2 batch_size : 50
-Loss	AccVal_loss	Val_acc
-0.0014288960697	1.0	0.0016753295632	1.0
