@@ -1,5 +1,6 @@
-import  numpy
+import random as rn
 from sklearn.preprocessing import *
+import matplotlib.pyplot as plt
 class Dataset_Loader():
     def __init__(self, filename):
         self.name=filename
@@ -58,3 +59,21 @@ class Dataset_Loader():
             self.y.append([float(el) for el in vector_t])
         #print self.x
         #print self.y
+
+    def split_train_get_test(self, percentuage = 0.2):
+        n_test_pattern = int(len(self.x)*percentuage)
+        self.x_test = []
+        self.y_test = []
+        for i in range(0,n_test_pattern):
+            chose = rn.randrange(0,len(self.x))
+            self.x_test.append(self.x.pop(chose))
+            self.y_test.append(self.y.pop(chose))
+    def plot_test_2D(self,z1,z2):
+        pltname = 'Test 2D'
+        x1 =[ el[0] for el in z1 ]
+        y1 =[ el[1] for el in z1 ]
+        x2 =[ el[0] for el in z2 ]
+        y2 =[ el[1] for el in z2 ]
+        plt.plot(x1,y1,'o')
+        plt.plot(x2,y2,'s')
+        plt.show()
