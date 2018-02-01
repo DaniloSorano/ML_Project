@@ -21,7 +21,7 @@ folder = 'exp_cup/'
 def identity(x): return x
 def derivata_identity(x):  return 1
 
-for n_units in [4,7,10]:
+for n_units in [6,20]:
     topology = topology + 1
     for tries in range(0,5):
         layers = []
@@ -31,11 +31,11 @@ for n_units in [4,7,10]:
         pkl.dump(n,open(folder +n.name,'wb')) #+'_'+str(dt.datetime.now()).replace(' ','_').split('.')[0])
 
 
-for topology in range(0,3):
+for topology in range(0,2):
     teta = -1
-    for mode in ['batch','minibatch']:
-        for eta in [0.05, 0.2, 0.6]:
-            for momentum in [.0, .5, .7]:
+    for mode in ['online','batch','minibatch']:
+        for eta in [0.01, 0.05, 0.2]:
+            for momentum in [.0, .3, .7]:
                 if mode == 'minibatch':
                     for lamb in [0.0, 0.02]:
                         for batch_size in [50, 100]:

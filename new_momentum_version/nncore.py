@@ -157,8 +157,8 @@ class Net():
             c=c+1 # for the plot
             mse,mee,predicted = self.little_fit(self.train_x, self.train_y,eta,mode,batch_size,momentum,lamb=lamb)
 
-            choose = rn.randrange(0, len(predicted))
-            print predicted[choose], self.train_y[choose]
+            #choose = rn.randrange(0, len(predicted))
+            #print predicted[choose], self.train_y[choose]
             acc.append(self.accuracy(predicted,self.train_y))
             #loss.append(mse)
             loss.append(mee)
