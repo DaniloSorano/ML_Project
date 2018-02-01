@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-folder = 'exp_monks-3/'
+folder = 'myexp_monks-2/'
 noplot = False
 def refactor_data(topology,tries,conf):
     #print folder+'Net_'+str(topology)+'_try_'+str(tries)+'_'+str(conf)+'.score'
@@ -14,20 +14,20 @@ def refactor_data(topology,tries,conf):
             atts = line.split(' ')
             old_atts = list(atts)
             for i,el in enumerate(atts):
-                if el == 'n_layer:':
-                    old_atts[i]='h_units:'
-                    old_atts[i+1] = ('5' if topology ==0 else ('7' if topology==1 else '10'))
+                if el == 'batch_size':
+                    old_atts[i]='batch_size:'
+                    old_atts[i+1]=old_atts[i+2]
+                    old_atts=old_atts[:(i+1)]+old_atts[i+2:]
             #print atts
             if old_atts!=atts:
                 print atts
-                print old_atts
                 s=''
                 for el in old_atts:
                     s=s+el+' '
                 print s
-            #to_write.append(s)
-
-            to_write.append(line)
+                to_write.append(s)
+            else:
+                to_write.append(line)
         else:
             to_write.append(line)
         i = i+1
@@ -95,8 +95,8 @@ def plot_stats(name,loss,acc,val_loss=[],val_acc=[],color = 'light',title=''):
     plt.plot(range(0,c),val_loss,linestyle='--',color=c2,label=('Val_loss average'if color!='light' else ''))   
     #x1,x2,y1,y2 = plt.axis()
     #plt.axis((x1,x2,0.4,-0.05))
-    ax2.set_ylim(.0,(0.3 if folder[-2]!='3' else 0.6))
-    plt.xlabel('ephocs')
+    ax2.set_ylim(.0,0.6)
+    plt.xlabel('epochs')
     plt.ylabel('Loss')
     if color!='light':
         plt.legend(fontsize=15,loc=1)
@@ -107,7 +107,7 @@ def plot_stats(name,loss,acc,val_loss=[],val_acc=[],color = 'light',title=''):
 plt.figure(figsize=(10,10))
 n_tries = 5
 for topology in [0,1,2]:
-    for conf in range(0,(45 if folder[-2]!='3' else 135)):
+    for conf in range(0,(45)):# if topology==1 else 9)):
         confs,test_acc,l,a,v_l,v_a = load_conf_and_score(topology,0,conf)
         test_acc_avg = np.array(test_acc)
         l_avg = np.array(l)
@@ -119,10 +119,6 @@ for topology in [0,1,2]:
         for tries in range(1,n_tries):
             confs,test_acc,l,a,v_l,v_a = load_conf_and_score(topology,tries,conf)
             test_acc_avg = test_acc_avg + np.array(test_acc)
-            if len(l_avg)!=len(l):
-                print len(l),len(l_avg)
-                print topology,conf
-                break #con questo break da 1_5_test-blablabla si passa a 1_7
             l_avg = l_avg + np.array(l)
             a_avg = a_avg + np.array(a)
             v_l_avg = v_l_avg + np.array(v_l)

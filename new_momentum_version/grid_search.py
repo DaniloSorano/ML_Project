@@ -32,14 +32,14 @@ for topology in range(0,3):
     teta = -1
     for mode in ['batch','online','minibatch']:
         for eta in [.3, .5, .9]:
-            for momentum in [.3, .7, .8]:
+            for momentum in [.3 , .7, .8]:
                 if mode == 'minibatch':
                     for batch_size in [10,30,50]:
                         teta = teta + 1
                         for tries in range(0,5):
                             #validation_accuracy_for_topology=[]
                             n = pkl.load(open(folder + 'Net_'+str(topology)+'_try_'+str(tries),'rb'))
-                            print str((n.name.split('_'))),eta,momentum,mode,(batch_size if mode =='minibatch' else '' ),str(teta)
+                            print str((n.name.split('_'))),eta,momentum,lamb,mode,(batch_size if mode =='minibatch' else '' ),str(teta)
 
                             loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta, mode=mode, epochs=500, momentum=momentum,batch_size=batch_size, hold_out=0.2)
                             predicted = []
