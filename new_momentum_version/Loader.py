@@ -1,6 +1,7 @@
 import random as rn
 from sklearn.preprocessing import *
 import matplotlib.pyplot as plt
+import numpy as np
 class Dataset_Loader():
     def __init__(self, filename):
         self.name=filename
@@ -69,11 +70,34 @@ class Dataset_Loader():
             self.x_test.append(self.x.pop(chose))
             self.y_test.append(self.y.pop(chose))
     def plot_test_2D(self,z1,z2):
+        plt.figure(figsize=(20,10))
         pltname = 'Test 2D'
         x1 =[ el[0] for el in z1 ]
         y1 =[ el[1] for el in z1 ]
         x2 =[ el[0] for el in z2 ]
         y2 =[ el[1] for el in z2 ]
-        plt.plot(x1,y1,'o')
+        plt.plot(x1,y1,'^')
         plt.plot(x2,y2,'s')
         plt.show()
+    def rescale(self, range=[0.,1.]):
+        a = [[] for el in self.x[0]]
+        for i,v in enumerate(self.x[0]):
+            for p in self.x:
+                a[i].append(p[i])
+        maxmins = [{'max':max(el),'min':min(el)} for el in a]        
+        for p in self.x:
+            for i,v in enumerate(p):
+                p[i]= (p[i]-maxmins[i]['min'])/(maxmins[i]['min']-maxmins[i]['max']) * range[1]
+    def standardize(self):
+        a = [[] for el in self.x[0]]
+        for i,v in enumerate(self.x[0]):
+            for p in self.x:
+                a[i].append(p[i])
+        means_standards = [{'mean':np.array(el).mean(),'std':np.array(el).std()} for el in a]
+        print means_standards
+        for p in self.x:
+            for i,v in enumerate(p):
+                p[i]= (p[i]-means_standards[i]['mean'])/(means_standards[i]['std'])
+        
+l_train = Dataset_Loader('ML-CUP17-TR.csv')
+l_train.load_cup_train()
