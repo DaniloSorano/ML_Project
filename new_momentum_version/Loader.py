@@ -69,7 +69,7 @@ class Dataset_Loader():
             chose = rn.randrange(0,len(self.x))
             self.x_test.append(self.x.pop(chose))
             self.y_test.append(self.y.pop(chose))
-    def plot_test_2D(self,z1,z2):
+    def plot_test_2D(self,z1,z2,name=''):
         plt.figure(figsize=(20,10))
         pltname = 'Test 2D'
         x1 =[ el[0] for el in z1 ]
@@ -78,8 +78,11 @@ class Dataset_Loader():
         y2 =[ el[1] for el in z2 ]
         plt.plot(x1,y1,'^',label='Target')
         plt.plot(x2,y2,'s',label='Output')
-        plt.legend(fontsize=15,loc=9)
-        plt.show()
+        plt.legend(fontsize=20,loc=9)
+        if name == '':
+            plt.show()
+        else:
+            plt.savefig(name)
     def rescale(self, range=[0.,1.]):
         a = [[] for el in self.x[0]]
         for i,v in enumerate(self.x[0]):

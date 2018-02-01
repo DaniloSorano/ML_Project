@@ -9,7 +9,7 @@ early = False
 
 l_train = Dataset_Loader('ML-CUP17-TR.csv')
 l_train.load_cup_train()
-l_train.split_train_get_test(0.1)
+l_train.split_train_get_test(0.2)
 
 n_inputs = len(l_train.x[0])
 n_outputs = len(l_train.y[0])
@@ -34,11 +34,11 @@ for n_units in [4,7,10]:
 for topology in range(0,3):
     teta = -1
     for mode in ['batch','minibatch']:
-        for eta in [0.3, 0.5, .9]:
-            for momentum in [.3, .7, .8]:
+        for eta in [0.05, 0.2, 0.6]:
+            for momentum in [.0, .5, .7]:
                 if mode == 'minibatch':
-                    for lamb in [0.0, 0.01]:
-                        for batch_size in [10,20,30,50]:
+                    for lamb in [0.0, 0.02]:
+                        for batch_size in [50, 100]:
                             teta = teta + 1
                             for tries in range(0,5):
                                 #validation_accuracy_for_topology=[]
@@ -46,7 +46,7 @@ for topology in range(0,3):
                                 print str((n.name.split('_'))),eta,momentum,mode,lamb,(batch_size if mode =='minibatch' else '' ),str(teta)
 
                                 loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=1, momentum=momentum/10.,batch_size=batch_size,early=early, lamb=lamb, hold_out=0.2)
-                                mse, mee, acc = n.metrics(l_train.x_test,l_train.y_test)
+                                mse, mee, predicted = n.metrics_reg(l_train.x_test,l_train.y_test)
                                 #i = i + 1
                                 print 'MEE = ', loss[-1],'Validation MEE = ', val_loss[-1], 'Test MEE = ', mee
 
@@ -54,20 +54,26 @@ for topology in range(0,3):
 
                                 n.save_conf_and_score_cup(folder, teta,loss,val_loss,mee)
 
+                                l_train.plot_test_2D(l_train.y_test, predicted, name=folder + n.name + '_' + str(teta) + '_test-' + str(mee).replace('.',','))
+
+
+
                 else:
-                    for lamb in [0.0, 0.01,]:
+                    for lamb in [0.0, 0.02]:
                         teta = teta + 1
                         for tries in range(0,5):
                             n = pkl.load(open(folder + 'Net_'+str(topology)+'_try_'+str(tries),'rb'))
                             print str((n.name.split('_'))),eta,momentum,mode,lamb,(batch_size if mode =='minibatch' else '' ),str(teta)
 
                             loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta/10., mode=mode, epochs=1, momentum=momentum/10., lamb=lamb, early=early, hold_out=0.2)
-                            mse, mee, acc = n.metrics(l_train.x_test,l_train.y_test)
+                            mse, mee, predicted = n.metrics_reg(l_train.x_test,l_train.y_test)
                             #i = i + 1
                             print 'MEE = ', loss[-1], 'Validation MEE = ', val_loss[-1], 'Test MEE = ', mee
 
                             print("--- %s seconds ---" % (time.time() - start_time))
                             n.save_conf_and_score_cup(folder, teta, loss, val_loss, mee)
+
+                            l_train.plot_test_2D(l_train.y_test, predicted,name=folder + n.name + '_' + str(teta) + '_test-' + str(mee).replace('.', ','))
 
 print("--- %s seconds ---" % (time.time() - start_time))
 #print i

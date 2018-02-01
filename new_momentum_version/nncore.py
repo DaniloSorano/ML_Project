@@ -238,6 +238,23 @@ class Net():
 
         return (mse+ self.penalty)/len(x), (mee+self.penalty)/len(x), acc/len(x)
 
+    def metrics_reg(self, x, y):
+        mee = 0
+        mse = 0
+        predicted = []
+        for i, p in enumerate(x):
+            hx = self.predict(p)
+            predicted.append(hx)
+            #print ('pattern', i, hx, y[i])
+            '''print np.array(y[i]) - hx
+            print np.square((np.array(y[i]) - hx))
+            print np.sum(np.square((np.array(y[i]) - hx)))'''
+            mse = mse + np.sum(.5 * np.square((np.array(y[i]) - hx))) #the error
+            mee = mee + np.sqrt(np.sum(np.square((np.array(y[i]) - hx)))) #the error
+            #    print y[i][0],hx[0]
+
+        return (mse+ self.penalty)/len(x), (mee+self.penalty)/len(x), predicted
+
     def MEE(self, x, y): #Mean Eucludian Error
         s = 0
         for i, p in enumerate(x):
