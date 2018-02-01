@@ -9,6 +9,22 @@ class Net():
     def __init__(self, layers,name='rete'):
         self.name=name
         self.layers = layers  #the layers of the network
+
+    def save_conf_and_score_cup(self, folder, N_conf,loss,val_loss, test_mee):
+        f = open(folder + self.name+'_'+str(N_conf)+'.score','wb')
+        f.write('Test_MEE' + ': ' + str(test_mee)+' ')
+        for k in ['eta','momentum','h_units', 'lamb','mode']:
+            if not (k == 'lamb' and self.conf[k] == 0.0):
+                f.write(k + ': ' + str(self.conf[k])+' ')
+        if self.conf['mode']=='minibatch':
+            f.write('batch_size' + ' : ' + str(self.conf['batch_size']))
+        # f.write('Epochs: '+str(len(loss)))
+        f.write('\r\n')
+        f.write('Loss\t'+(('Val_loss\t\r\n')if val_loss!=[] else '\r\n'))
+        for i,l in enumerate(loss):
+            f.write(str(loss[i])+'\t'+(('\t'+str(val_loss[i])+'\t'+'\r\n') if val_loss!=[] else '\r\n'))
+        f.close()
+
     def save_conf_and_score(self, folder, N_conf,loss,acc,val_loss,val_acc,test_acc):
         f = open(folder + self.name+'_'+str(N_conf)+'.score','wb')
         f.write('Test_Acc' + ': ' + str(test_acc)+' ')
@@ -153,7 +169,7 @@ class Net():
                 #val_loss.append(val_mse)
                 val_loss.append(val_mee)
             print ('Epochs',i,'/',epochs)
-            print 'MEE', mee, 'val_MEE', val_mee
+            print 'MEE', mee, 'val_MEE', val_mee, 'MSE', mse
             #print ('MSE', mse, (('VAL_ACC '+str(val_acc[-1])+' VAL_MSE '+str(val_loss[-1])) if hold_out>0. else ''))
             #EARLY STOPPING
             if early:
@@ -172,7 +188,7 @@ class Net():
         if val_loss!=[]:
             plt.plot(range(0,c),val_loss,'y--')
         plt.ylabel('Loss/')
-        plt.xlabel('ephocs')
+        plt.xlabel('epochs')
         plt.savefig(self.name)
         plt.show()
 
@@ -182,7 +198,7 @@ class Net():
         if val_acc!=[]:
             plt.plot(range(0,c),val_acc,'g--',range(0,c),val_loss,'y--')
         plt.ylabel('Loss/Acc')
-        plt.xlabel('ephocs')
+        plt.xlabel('epochs')
         plt.savefig(self.name)
         plt.show()
 
