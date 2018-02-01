@@ -78,7 +78,7 @@ class Dataset_Loader():
         y2 =[ el[1] for el in z2 ]
         plt.plot(x1,y1,'^',label='Target')
         plt.plot(x2,y2,'s',label='Output')
-        plt.legend()
+        plt.legend(fontsize=15,loc=9)
         plt.show()
     def rescale(self, range=[0.,1.]):
         a = [[] for el in self.x[0]]
