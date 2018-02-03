@@ -15,12 +15,15 @@ folder = 'fine_' + task + '/'
 
 nets = []
 
+def identity(x): return x
+def derivata_identity(x):  return 1
+
 topology = 1
 n_units = 20
 for tries in range(0,5):
     layers = []
     layers.append(Layer(inputs=n_inputs,sorta=logistic,derivata=derivata_logistic,num_unit=n_units))
-    layers.append(Output_Layer(inputs=n_units,sorta=logistic,derivata=derivata_logistic,num_unit=n_outputs))
+    layers.append(Output_Layer(inputs=n_units,sorta=identity,derivata=derivata_identity,num_unit=n_outputs))
     n = Net(layers,name='Net_'+str(topology)+'_try_'+str(tries))
     pkl.dump(n,open(folder +n.name,'wb')) #+'_'+str(dt.datetime.now()).replace(' ','_').split('.')[0])
 
@@ -38,8 +41,8 @@ for mode in ['minibatch']:
 
                     loss,acc,val_loss,val_acc=n.fit(l_train.x, l_train.y, eta=eta,mode=mode, batch_size=batch_size, epochs=300, momentum=momentum, hold_out=0.2)
 
-                    print 'MEE = ', loss[-1],'val_MEE = ', val_loss[-1],
+                    print 'MEE = ', loss[-1],'val_MEE = ', val_loss[-1]
 
-                    n.save_conf_and_score_reg(folder, teta,loss,val_loss,val_loss[-1])
+                    n.save_conf_and_score_cup(folder, teta,loss,val_loss,val_loss[-1])
 
 print("--- %s seconds ---" % (time.time() - start_time))
