@@ -1,0 +1,3 @@
+Abbiamo voluto implementare una rete neurale da zero per comprendere maggiormente quali siano le complicazioni 
+che sorgono nell’implementazione delle strutture della rete e gli algoritmi di apprendimento; 
+per capire approfonditamente quali siano i punti cruciali per la costruzione e l’utilizzo di percettroni a più livelli.
